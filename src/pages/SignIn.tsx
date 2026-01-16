@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { z, ZodError } from "zod";
+import { AxiosError } from "axios";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { Link } from "react-router-dom";
 
 const signInSchema = z.object({
-  email: z.string().email({ message: "Informe um e-mai válido!" }),
+  email: z.string().email({ message: "Informe um e-mail válido!" }),
   password: z
     .string()
     .min(6, { message: "Informe uma senha com no mínimo 6 dígitos!" }),
@@ -14,6 +15,9 @@ const signInSchema = z.object({
 export function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [formErrors, setFormErrors] = useState<
+    Record<string, string[] | undefined>
+  >({});
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,7 +29,22 @@ export function SignIn() {
       });
 
       console.log(data);
-    } catch (error) {}
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const { fieldErrors } = error.flatten();
+        setFormErrors(fieldErrors);
+        return;
+      }
+
+      if (error instanceof AxiosError) {
+        setFormErrors({
+          api: [error.response?.data.message || "Erro no servidor"],
+        });
+        return;
+      }
+
+      setFormErrors({ api: ["Não foi possível entrar!"] });
+    }
   }
 
   return (
@@ -38,6 +57,13 @@ export function SignIn() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
+
+      {formErrors.email && (
+        <span className="text-red-500 text-sm font-bold">
+          {formErrors.email[0]}
+        </span>
+      )}
+
       <Input
         required
         type="password"
@@ -46,6 +72,19 @@ export function SignIn() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+
+      {formErrors.password && (
+        <span className="text-red-500 text-sm font-bold">
+          {formErrors.password[0]}
+        </span>
+      )}
+
+      {formErrors.api && (
+        <div className="text-red-500 text-sm font-bold">
+          {formErrors.api[0]}
+        </div>
+      )}
+
       <Button type="submit">Entrar</Button>
 
       <Link
