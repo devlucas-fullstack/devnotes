@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { z, ZodError } from "zod";
 import { AxiosError } from "axios";
+import { api } from "../services/api";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { Link } from "react-router-dom";
@@ -29,7 +31,9 @@ export function SignUp() {
     Record<string, string[] | undefined>
   >({});
 
-  function onSubmit(e: React.FormEvent) {
+  const navigate = useNavigate();
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
@@ -40,7 +44,9 @@ export function SignUp() {
         passwordConfirm,
       });
 
-      console.log(data);
+      await api.post("/users", data);
+
+      navigate("/");
     } catch (error) {
       if (error instanceof ZodError) {
         const { fieldErrors } = error.flatten();
