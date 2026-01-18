@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useAuth } from "../hooks/auth";
+import { api } from "../services/api";
 import { z, ZodError } from "zod";
 import { AxiosError } from "axios";
 import { Input } from "../components/Input";
@@ -19,7 +21,9 @@ export function SignIn() {
     Record<string, string[] | undefined>
   >({});
 
-  function onSubmit(e: React.FormEvent) {
+  const auth = useAuth();
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
@@ -28,7 +32,8 @@ export function SignIn() {
         password,
       });
 
-      console.log(data);
+      const response = await api.post("/sessions", data);
+      auth.save(response.data);
     } catch (error) {
       if (error instanceof ZodError) {
         const { fieldErrors } = error.flatten();
