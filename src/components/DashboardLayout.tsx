@@ -3,7 +3,7 @@ import { Header } from "./Header";
 
 export function DashboardLayout() {
   return (
-    <div className="w-screen h-full bg-gray-900 flex flex-col items-center">
+    <div className="min-h-screen w-screen bg-gray-900 flex flex-col items-center">
       <main className="p-3 w-full">
         <Header />
         <Outlet />
