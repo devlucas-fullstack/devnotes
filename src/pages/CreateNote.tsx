@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { api } from "../services/api";
 import { z, ZodError } from "zod";
 import { AxiosError } from "axios";
@@ -21,6 +22,8 @@ export function CreateNote() {
   >({});
 
   const navigate = useNavigate();
+  const params = useParams<{ id: string }>();
+  const isEditing = Boolean(params.id);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +31,12 @@ export function CreateNote() {
     try {
       const data = noteSchema.parse({ description, category });
 
-      await api.post("/notes", data);
+      if (isEditing) {
+        await api.put(`/notes/${params.id}`, data);
+      } else {
+        await api.post("/notes", data);
+      }
+
       navigate("/");
     } catch (error) {
       if (error instanceof ZodError) {
@@ -48,12 +56,27 @@ export function CreateNote() {
     }
   }
 
+  async function fetchNotes(id: string) {
+    const { data } = await api.get(`/notes/${id}`);
+
+    setCategory(data.category);
+    setDescription(data.description);
+  }
+
+  useEffect(() => {
+    if (params.id) {
+      fetchNotes(params.id);
+    }
+  }, [params.id]);
+
   return (
     <form
       className="w-full lg:max-w-lg flex flex-col bg-gray-300 p-10 rounded-2xl mx-auto my-8 gap-4"
       onSubmit={onSubmit}
     >
-      <h1 className="text-xl font-bold">Criar nota</h1>
+      <h1 className="text-xl font-bold">
+        {isEditing ? "Editar nota" : "Criar nota"}
+      </h1>
       <textarea
         required
         name="notes"
@@ -126,7 +149,7 @@ export function CreateNote() {
         </div>
       )}
 
-      <Button type="submit">Criar</Button>
+      <Button type="submit">{isEditing ? "Salvar" : "Criar"}</Button>
     </form>
   );
 }

@@ -9,6 +9,7 @@ export function DashboardRoutes() {
       <Route path="/" element={<DashboardLayout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/create" element={<CreateNote />} />
+        <Route path="/notes/:id" element={<CreateNote />} />
       </Route>
     </Routes>
   );
