@@ -163,7 +163,7 @@ export function CreateNote() {
           Remover
         </Button>
       ) : (
-        "Criar"
+        ""
       )}
     </form>
   );
