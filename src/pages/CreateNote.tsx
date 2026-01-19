@@ -63,6 +63,14 @@ export function CreateNote() {
     setDescription(data.description);
   }
 
+  async function removeNotes() {
+    if (!params.id) return;
+
+    await api.delete(`/notes/${params.id}`);
+
+    navigate("/");
+  }
+
   useEffect(() => {
     if (params.id) {
       fetchNotes(params.id);
@@ -150,6 +158,13 @@ export function CreateNote() {
       )}
 
       <Button type="submit">{isEditing ? "Salvar" : "Criar"}</Button>
+      {isEditing ? (
+        <Button type="button" onClick={removeNotes}>
+          Remover
+        </Button>
+      ) : (
+        "Criar"
+      )}
     </form>
   );
 }
