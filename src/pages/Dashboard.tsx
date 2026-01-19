@@ -44,12 +44,18 @@ export function Dashboard() {
   return (
     <div>
       <div className="w-full lg:max-w-270.5 flex flex-col mx-auto bg-gray-300 p-10 rounded-2xl my-8">
+        {formErrors.api && (
+          <div className="text-red-500 text-xxs font-bold">
+            {formErrors.api[0]}
+          </div>
+        )}
+
         <h1 className="text-xl font-bold flex-1 border-b border-b-gray-400 pb-6">
           Notas
         </h1>
         <div className="flex flex-col gap-3 mt-8">
           {notes.map((item) => (
-            <NoteItem to={`/refund/${item.id}`} key={item.id} data={item} />
+            <NoteItem to={`/notes/${item.id}`} key={item.id} data={item} />
           ))}
         </div>
       </div>
