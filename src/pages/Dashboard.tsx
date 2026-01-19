@@ -1,11 +1,45 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
+import { NoteItem, type NoteItemProps } from "../components/NoteItem";
+import { api } from "../services/api";
+
+type NotesResponse = NotesAPIResponse[];
 
 export function Dashboard() {
+  const [notes, setNotes] = useState<NoteItemProps[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
+
   const navigate = useNavigate();
+
+  async function fetchNotes() {
+    try {
+      const response = await api.get<NotesResponse>("/notes");
+
+      setNotes(
+        response.data.map((note) => ({
+          id: note.id,
+          description: note.description,
+          category: note.category,
+        })),
+      );
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setFormErrors({
+          api: [error.response?.data.message || "Erro no servidor"],
+        });
+        return;
+      }
+    }
+  }
 
   function createNote() {
     navigate("/create");
   }
+
+  useEffect(() => {
+    fetchNotes();
+  }, []);
 
   return (
     <div>
@@ -13,8 +47,10 @@ export function Dashboard() {
         <h1 className="text-xl font-bold flex-1 border-b border-b-gray-400 pb-6">
           Notas
         </h1>
-        <div className="mt-6 w-full flex flex-row flex-wrap gap-5">
-          <p>Lorem ipsum dolor sit amet </p>
+        <div className="flex flex-col gap-3 mt-8">
+          {notes.map((item) => (
+            <NoteItem to={`/refund/${item.id}`} key={item.id} data={item} />
+          ))}
         </div>
       </div>
       <button
